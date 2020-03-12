@@ -3,13 +3,12 @@ from mort import *
 
 import matplotlib.pyplot as plt
 
-mort_years = 20
-principal = 125000
-int_rate = 1.94
+mort_years = 25
+principal = 145000
+int_rate = 7.99
 
 # calc the repayment amount
 repayment = calcRepayment(12 * mort_years, principal, int_rate)
-
 graphData = getGraphData(12 * mort_years, principal, int_rate)
 
 owed = list()
@@ -25,15 +24,13 @@ totint = 0
 totcap = 0
 
 for month in graphData:
-
-    print("{0} £{1} £{2} £{3}".format(month.get("number"), month.get("val"), month.get("cap"), month.get("int")))    
     
-    print("total interest: £{0}  total capital: £{1}".format(totint, totcap))
+    print("{0} £{1} £{2} £{3}".format(month[0], month[1], month[2], month[3])) 
 
-    totint += month.get("int")
-    totcap += month.get("cap")
+    totint += month[1]
+    totcap += month[2]
     #if int(month.get("number")) % 12 == 0:
-    owed.append(month.get("val"))
+    owed.append(month[0])
     running_total_cap.append(totcap)
     running_total_int.append(totint)
     running_total_all.append(totcap + totint)

@@ -4,9 +4,11 @@
 #
 from decimal import Decimal
 
-#  calculate the repayment based on annual interest rate, 
+#  calculate the repayment based on annual interest rate,
 #  principal (money borrowed), and the number of monthly repayments
 #
+
+
 def calcRepayment(num_repayments, principal, yearly_rate):
     pv = principal
     i = (yearly_rate / 12) / 100
@@ -17,6 +19,8 @@ def calcRepayment(num_repayments, principal, yearly_rate):
 
 # calculate the future value at any point during repayment, given repayment amount
 #
+
+
 def calcFutureValue(num_repayments, principal, yearly_rate, repayment):
     i = (yearly_rate / 12) / 100
     pv = principal
@@ -34,7 +38,7 @@ def getGraphData(num_repayments, principal, int_rate):
     inttot = Decimal(0)
     data = list()
     for i in range(1, num_repayments + 1):
-        val = Decimal( calcFutureValue(i, principal, int_rate, repayment) )
+        val = Decimal(calcFutureValue(i, principal, int_rate, repayment))
         if (lastval != 0):
             capital = lastval - val
         else:
@@ -42,13 +46,10 @@ def getGraphData(num_repayments, principal, int_rate):
 
         interest = repayment - capital
         inttot += interest
-        month_data = {"number": i,
-                      "val": val,
-                      "cap": capital,
-                      "int": interest,
-                      "inttot": inttot}
+        month_data = [float(val),
+                      float(capital),
+                      float(interest),
+                      float(inttot)]
         data.append(month_data)
         lastval = Decimal(val)
     return data
-
-    

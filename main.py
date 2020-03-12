@@ -1,18 +1,38 @@
 #!/bin/env python
 
 from mort import *
-from PyQt5 import QtWidgets, uic, QtCore, Qt
+from PyQt5 import QtWidgets, uic, QtCore
+from PyQt5.QtCore import Qt
 import sys
 
-class repaymentsTable(QtCore.QAbstractTableModel):
-    def rowcount(self, data):
-        return 300
 
-    def columnCount(self, data):
-        return 4
+class RepayTable(QtCore.QAbstractTableModel):
+    def __init__(self):
+        super(RepayTable, self).__init__()
+        self._headings = ['Principal', 'Capital', 'Interest','Total Interest']        
 
-    def data(self, index):
-        return 4
+    def data(self, index, role):
+        if role == Qt.DisplayRole:
+            return self._data[index.row()][index.column()]
+        elif role == Qt.TextAlignmentRole:
+            return Qt.AlignRight
+
+    def rowCount(self, index):
+        return len(self._data)
+
+    def columnCount(self, index):
+        return len(self._data[0])
+
+    def headerData(self, col, orientation, role):
+        if orientation == Qt.Horizontal and role == Qt.DisplayRole:
+            return self._headings[col]
+        return None
+
+    def update(self, num_repayments, principal, int_rate):
+        self._data = getGraphData(num_repayments, principal, int_rate)
+        self.dataChanged.emit(self.createIndex(0, 0),
+                              self.createIndex(self.rowCount(None),
+                                               self.columnCount(None)))
 
 class Ui(QtWidgets.QMainWindow):
     def __init__(self):
@@ -29,6 +49,12 @@ class Ui(QtWidgets.QMainWindow):
         self.textOutput = self.findChild(QtWidgets.QTextEdit, 'output')
         self.table = self.findChild(QtWidgets.QTableView, 'tableView')
 
+        #set up model for the table
+        self.model = RepayTable()        
+        self.model.update(self.years.value()*12,
+                          self.principal.value(),
+                          self.interest.value())
+        self.table.setModel(self.model)
 
         # connect GUI elements to functions
         self.btnCalc.clicked.connect(self.calculate)
@@ -44,9 +70,9 @@ class Ui(QtWidgets.QMainWindow):
         self.textOutput.append("Years: " + str(years))
 
         repayment = calcRepayment(12 * years, principal, interest)
-        graphData = getGraphData(12 * years, principal, interest)
 
         self.textOutput.append("Repyament: £" + str(repayment) + " per month")
+        self.model.update(years * 12, principal, interest)
 
 
 app = QtWidgets.QApplication(sys.argv)
