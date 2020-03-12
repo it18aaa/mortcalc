@@ -1,8 +1,18 @@
 #!/bin/env python
 
 from mort import *
-from PyQt5 import QtWidgets, uic
+from PyQt5 import QtWidgets, uic, QtCore, Qt
 import sys
+
+class repaymentsTable(QtCore.QAbstractTableModel):
+    def rowcount(self, data):
+        return 300
+
+    def columnCount(self, data):
+        return 4
+
+    def data(self, index):
+        return 4
 
 class Ui(QtWidgets.QMainWindow):
     def __init__(self):
@@ -17,6 +27,8 @@ class Ui(QtWidgets.QMainWindow):
         self.interest = self.findChild(QtWidgets.QDoubleSpinBox, 'interest')
         self.years = self.findChild(QtWidgets.QSpinBox, 'years')
         self.textOutput = self.findChild(QtWidgets.QTextEdit, 'output')
+        self.table = self.findChild(QtWidgets.QTableView, 'tableView')
+
 
         # connect GUI elements to functions
         self.btnCalc.clicked.connect(self.calculate)
