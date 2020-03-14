@@ -105,7 +105,7 @@ class Ui(QtWidgets.QMainWindow):
         self._ax.plot(owed, 'r-')
         self._ax.plot(running_total_int, 'b')
         self._ax.plot(running_total_cap, 'g')
-        self._ax.plot(running_total_all, 'y--')
+        #self._ax.plot(running_total_all, 'y--')
         self._ax.grid(True, which='both')
         plt.minorticks_on()
 
