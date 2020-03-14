@@ -25,7 +25,7 @@ totcap = 0
 
 for month in graphData:
     
-    print("{0} £{1} £{2} £{3}".format(month[0], month[1], month[2], month[3])) 
+    #print("{0} £{1} £{2} £{3}".format(month[0], month[1], month[2], month[3])) 
 
     totint += month[1]
     totcap += month[2]
