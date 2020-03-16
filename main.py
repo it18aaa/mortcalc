@@ -4,6 +4,7 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt5agg import FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
 from mort import *
 from PyQt5 import QtWidgets, uic, QtCore
 from PyQt5.QtCore import Qt
@@ -28,7 +29,8 @@ class Ui(QtWidgets.QMainWindow):
         self.actionExit = self.findChild(QtWidgets.QAction, 'actionExit')
         self.table = self.findChild(QtWidgets.QTableView, 'tableView')
         self.graphWidget = self.findChild(QtWidgets.QWidget, 'graphWidget')
-        #self.layout = self.findChild(QtWidgets.QVBoxLayout,'topVBox')
+        
+
         self.table.setSizeAdjustPolicy(
             QtWidgets.QAbstractScrollArea.AdjustToContents)
 
@@ -44,18 +46,26 @@ class Ui(QtWidgets.QMainWindow):
         self.actionExit.triggered.connect(self.doQuit)
 
         # embed matplotlib canvas
-        self.figure = Figure(figsize=(5, 3))
-        self.graphCanvas = FigureCanvas(self.figure)
+        self.figure = Figure()
+        self.graphCanvas = FigureCanvas(self.figure)        
 
-        layout = QtWidgets.QVBoxLayout(self.graphWidget)    
-        self.graphCanvas.setParent(self.graphWidget)                   
+        layout = QtWidgets.QVBoxLayout(self.graphWidget)            
         layout.addWidget(self.graphCanvas)
+        self.graphCanvas.setParent(self.graphWidget)                   
 
-        self.addToolBar(QtCore.Qt.BottomToolBarArea,
-                        NavigationToolbar(self.graphCanvas, self))
+        #self.addToolBar(QtCore.Qt.BottomToolBarArea,
+        #                NavigationToolbar(self.graphCanvas, self))
 
         self._ax = self.graphCanvas.figure.subplots()
-        self._ax.set_title('hello')
+        self._ax.set_title('Mortgage repayment')
+        
+        
+
+        # TODO : take into consideration DPI
+        plt.rcParams.update({'font.size': 8})
+
+        #update the graph
+        self.calculate()
 
     def calculate(self):
         interest = self.interest.value()
@@ -102,12 +112,24 @@ class Ui(QtWidgets.QMainWindow):
             running_total_all.append(totcap + totint)
 
         self._ax.clear()
-        self._ax.plot(owed, 'r-')
-        self._ax.plot(running_total_int, 'b')
-        self._ax.plot(running_total_cap, 'g')
-        #self._ax.plot(running_total_all, 'y--')
+        self._ax.plot(owed, 'r-', label="Principal")
+        self._ax.plot(running_total_int, 'b', label="Total Interest")
+        self._ax.plot(running_total_cap, 'g', label="Total capital")
+        self._ax.plot(running_total_all, 'y--', label="Running Total")
+        self._ax.legend(loc="upper left")
         self._ax.grid(True, which='both')
         plt.minorticks_on()
+
+        formatter = ticker.StrMethodFormatter('£{x:,.0f}')
+        self._ax.yaxis.set_major_formatter(formatter)
+        
+        for tick in self._ax.yaxis.get_major_ticks():
+            tick.label1.set_visible(True)
+            tick.label2.set_visible(True)
+            tick.label2.set_color('green')
+
+        self._ax.set_ylabel('Amount')   
+        self._ax.set_xlabel('Repayment')
 
         self._ax.figure.canvas.draw()
 
