@@ -58,9 +58,7 @@ class Ui(QtWidgets.QMainWindow):
 
         self._ax = self.graphCanvas.figure.subplots()
         self._ax.set_title('Mortgage repayment')
-        
-        
-
+      
         # TODO : take into consideration DPI
         plt.rcParams.update({'font.size': 8})
 
