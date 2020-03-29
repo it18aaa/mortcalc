@@ -11,7 +11,7 @@ import matplotlib.ticker as ticker
 
 from mort import *
 from PyQt5 import QtWidgets, uic, QtCore
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QDate
 import sys
 from RepayTable import RepayTableModel
 
@@ -36,6 +36,7 @@ class Ui(QtWidgets.QMainWindow):
         self.principal.valueChanged.connect(self.calculate)
         self.interest.valueChanged.connect(self.calculate)
         self.years.valueChanged.connect(self.calculate)
+        self.startDate.dateChanged.connect(self.calculate)
 
 
         #update the graph
@@ -51,6 +52,9 @@ class Ui(QtWidgets.QMainWindow):
         self.actionExit = self.findChild(QtWidgets.QAction, 'actionExit')
         self.table = self.findChild(QtWidgets.QTableView, 'tableView')
         self.graphWidget = self.findChild(QtWidgets.QWidget, 'graphWidget')
+        self.startDate = self.findChild(QtWidgets.QWidget, 'startDateEdit')
+        # set today's date
+        self.startDate.setDate( QDate.currentDate())
 
     def initTable(self):
         self.table.setSizeAdjustPolicy(
@@ -60,7 +64,8 @@ class Ui(QtWidgets.QMainWindow):
         self.model = RepayTableModel()
         self.model.update(self.years.value()*12,
                           self.principal.value(),
-                          self.interest.value())
+                          self.interest.value(),
+                          self.startDate.date())
                           
         self.table.setModel(self.model)
 
@@ -93,16 +98,16 @@ class Ui(QtWidgets.QMainWindow):
         self.textOutput.append("Principal: £" + str(principal))
        
         repayment = calcRepayment(12 * years, principal, interest)
-
         self.textOutput.append("Repyament: £" + str(repayment) + " per month")
-        self.model.update(years * 12, principal, interest)
-        
-        self.updateGraph( years, principal, interest)
-        
+        self.model.update(years * 12, principal, interest, self.startDate.date())        
+        self.updateGraph( years, principal, interest)        
 
     def updateGraph(self, years, principal, interest):
 
-        graphData = getGraphData(12*years, principal, interest)
+        graphData = getGraphData( 12*years, 
+                                  principal, 
+                                  interest, 
+                                  self.startDate.date())
 
         owed = list()
         running_total_int = list()
@@ -117,13 +122,9 @@ class Ui(QtWidgets.QMainWindow):
         totcap = 0
 
         for month in graphData:
-
-            # print("{0} £{1} £{2} £{3}".format(
-            #     month[0], month[1], month[2], month[3]))
-
             totint += month[3]
             totcap += month[4]
-            # if int(month.get("number")) % 12 == 0:
+            
             owed.append(month[2])
             running_total_cap.append(totcap)
             running_total_int.append(totint)

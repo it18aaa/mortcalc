@@ -3,6 +3,7 @@
 # Using using formulae from http://motgagesexposed.com
 #
 from decimal import Decimal
+from PyQt5.QtCore import QDate
 
 #  calculate the repayment based on annual interest rate,
 #  principal (money borrowed), and the number of monthly repayments
@@ -25,7 +26,7 @@ def calcFutureValue(num_repayments, principal, yearly_rate, repayment):
     fv = pv * (1 + i)**n - pmt * (((1 + i)**n)-1) / i
     return round(Decimal(fv), 2)
 
-def getGraphData(num_repayments, principal, int_rate):
+def getGraphData(num_repayments, principal, int_rate, start_date):
     repayment = calcRepayment(num_repayments, principal, int_rate)
     # iterate through values and print out details:-
     lastval = 0
@@ -41,7 +42,7 @@ def getGraphData(num_repayments, principal, int_rate):
         interest = repayment - capital
         inttot += interest
         month_data = [int(i),
-                      'month',
+                      start_date.addMonths(i).toString('dd MMM yy'),
                       float(val),
                       float(capital),
                       float(interest),

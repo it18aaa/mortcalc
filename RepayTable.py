@@ -7,7 +7,6 @@ class RepayTableModel(QtCore.QAbstractTableModel):
         super(RepayTableModel, self).__init__()
         self._headings = ['Payment', 'Month', 'Principal', 'Capital', 'Interest','Total Interest', 'payment']                        
 
-
     def setStartData(self, date):
         self.startDate = date
 
@@ -33,9 +32,14 @@ class RepayTableModel(QtCore.QAbstractTableModel):
             return self._headings[col]        
         return None
 
-    def update(self, num_repayments, principal, int_rate):
-        self._data = getGraphData(num_repayments, principal, int_rate)
+    def update(self, num_repayments, principal, int_rate, start_date):
+        # bit of a hack so that the view resizes to fit the data set
+        self.beginResetModel()
+        self._data = getGraphData(num_repayments, principal, int_rate, start_date)
+        self.endResetModel()
         self.dataChanged.emit(self.createIndex(0, 0),
                               self.createIndex(self.rowCount(None),
                                                self.columnCount(None)))
+
+        
         
