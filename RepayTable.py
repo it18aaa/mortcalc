@@ -5,11 +5,20 @@ from PyQt5.QtCore import Qt
 class RepayTableModel(QtCore.QAbstractTableModel):
     def __init__(self):
         super(RepayTableModel, self).__init__()
-        self._headings = ['Principal', 'Capital', 'Interest','Total Interest']        
+        self._headings = ['Payment', 'Month', 'Principal', 'Capital', 'Interest','Total Interest', 'payment']                        
+
+
+    def setStartData(self, date):
+        self.startDate = date
 
     def data(self, index, role):
-        if role == Qt.DisplayRole:
-            return self._data[index.row()][index.column()]
+        # if display role :-
+        if role == Qt.DisplayRole:            
+            #format the columns
+            if(index.column() >= 2):
+                return "£ {0:,.2f}".format( self._data[index.row()][index.column()]  )
+            else:
+                return self._data[index.row()][index.column()]
         elif role == Qt.TextAlignmentRole:
             return Qt.AlignRight
 
@@ -21,7 +30,7 @@ class RepayTableModel(QtCore.QAbstractTableModel):
 
     def headerData(self, col, orientation, role):
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:
-            return self._headings[col]
+            return self._headings[col]        
         return None
 
     def update(self, num_repayments, principal, int_rate):

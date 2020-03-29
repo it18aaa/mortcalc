@@ -1,6 +1,5 @@
 #!/bin/env python
 
-
 import matplotlib
 from matplotlib.figure import Figure
 
@@ -21,6 +20,27 @@ matplotlib.use('QT5Agg')
 
 
 class Ui(QtWidgets.QMainWindow):
+
+    def __init__(self):
+        super(Ui, self).__init__()
+        uic.loadUi('mort.ui', self)
+
+        self.initVars()
+        self.initTable()
+        self.initGraph()
+    
+        # connect GUI elements to functions
+        self.btnCalc.clicked.connect(self.calculate)
+        self.actionExit.triggered.connect(self.doQuit)
+
+        self.principal.valueChanged.connect(self.calculate)
+        self.interest.valueChanged.connect(self.calculate)
+        self.years.valueChanged.connect(self.calculate)
+
+
+        #update the graph
+        self.calculate()
+
     def initVars(self):
         # collect all the Ui pointers we need to interact with GUI
         self.btnCalc = self.findChild(QtWidgets.QPushButton, 'btnCalc')
@@ -44,26 +64,6 @@ class Ui(QtWidgets.QMainWindow):
                           
         self.table.setModel(self.model)
 
-
-
-    def __init__(self):
-        super(Ui, self).__init__()
-        uic.loadUi('mort.ui', self)
-        self.initVars()
-        self.initTable()
-        self.initGraph()
-    
-        # connect GUI elements to functions
-        self.btnCalc.clicked.connect(self.calculate)
-        self.actionExit.triggered.connect(self.doQuit)
-
-        self.principal.valueChanged.connect(self.calculate)
-        self.interest.valueChanged.connect(self.calculate)
-        self.years.valueChanged.connect(self.calculate)
-
-
-        #update the graph
-        self.calculate()
 
     def initGraph(self):
         # embed matplotlib canvas
@@ -121,10 +121,10 @@ class Ui(QtWidgets.QMainWindow):
             # print("{0} £{1} £{2} £{3}".format(
             #     month[0], month[1], month[2], month[3]))
 
-            totint += month[1]
-            totcap += month[2]
+            totint += month[3]
+            totcap += month[4]
             # if int(month.get("number")) % 12 == 0:
-            owed.append(month[0])
+            owed.append(month[2])
             running_total_cap.append(totcap)
             running_total_int.append(totint)
             running_total_all.append(totcap + totint)
