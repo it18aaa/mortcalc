@@ -1,10 +1,15 @@
 #!/bin/env python
+
+
 import matplotlib
 from matplotlib.figure import Figure
+
 from matplotlib.backends.backend_qt5agg import FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
+
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
+
 from mort import *
 from PyQt5 import QtWidgets, uic, QtCore
 from PyQt5.QtCore import Qt
@@ -16,10 +21,7 @@ matplotlib.use('QT5Agg')
 
 
 class Ui(QtWidgets.QMainWindow):
-    def __init__(self):
-        super(Ui, self).__init__()
-        uic.loadUi('mort.ui', self)
-
+    def initVars(self):
         # collect all the Ui pointers we need to interact with GUI
         self.btnCalc = self.findChild(QtWidgets.QPushButton, 'btnCalc')
         self.principal = self.findChild(QtWidgets.QSpinBox, 'principal')
@@ -29,8 +31,8 @@ class Ui(QtWidgets.QMainWindow):
         self.actionExit = self.findChild(QtWidgets.QAction, 'actionExit')
         self.table = self.findChild(QtWidgets.QTableView, 'tableView')
         self.graphWidget = self.findChild(QtWidgets.QWidget, 'graphWidget')
-        
 
+    def initTable(self):
         self.table.setSizeAdjustPolicy(
             QtWidgets.QAbstractScrollArea.AdjustToContents)
 
@@ -39,12 +41,31 @@ class Ui(QtWidgets.QMainWindow):
         self.model.update(self.years.value()*12,
                           self.principal.value(),
                           self.interest.value())
+                          
         self.table.setModel(self.model)
 
+
+
+    def __init__(self):
+        super(Ui, self).__init__()
+        uic.loadUi('mort.ui', self)
+        self.initVars()
+        self.initTable()
+        self.initGraph()
+    
         # connect GUI elements to functions
         self.btnCalc.clicked.connect(self.calculate)
         self.actionExit.triggered.connect(self.doQuit)
 
+        self.principal.valueChanged.connect(self.calculate)
+        self.interest.valueChanged.connect(self.calculate)
+        self.years.valueChanged.connect(self.calculate)
+
+
+        #update the graph
+        self.calculate()
+
+    def initGraph(self):
         # embed matplotlib canvas
         self.figure = Figure()
         self.graphCanvas = FigureCanvas(self.figure)        
@@ -53,17 +74,15 @@ class Ui(QtWidgets.QMainWindow):
         layout.addWidget(self.graphCanvas)
         self.graphCanvas.setParent(self.graphWidget)                   
 
-        #self.addToolBar(QtCore.Qt.BottomToolBarArea,
-        #                NavigationToolbar(self.graphCanvas, self))
+        self.addToolBar(QtCore.Qt.BottomToolBarArea,
+                        NavigationToolbar(self.graphCanvas, self))
 
         self._ax = self.graphCanvas.figure.subplots()
         self._ax.set_title('Mortgage repayment')
       
         # TODO : take into consideration DPI
         plt.rcParams.update({'font.size': 8})
-
-        #update the graph
-        self.calculate()
+        
 
     def calculate(self):
         interest = self.interest.value()
@@ -71,18 +90,19 @@ class Ui(QtWidgets.QMainWindow):
         years = self.years.value()
 
         self.textOutput.clear()
-        #self.textOutput.append("Interest Rate: {0:.2f}%".format(interest))
         self.textOutput.append("Principal: £" + str(principal))
-        #self.textOutput.append("Years: " + str(years))
-
+       
         repayment = calcRepayment(12 * years, principal, interest)
 
         self.textOutput.append("Repyament: £" + str(repayment) + " per month")
         self.model.update(years * 12, principal, interest)
+        
+        self.updateGraph( years, principal, interest)
+        
+
+    def updateGraph(self, years, principal, interest):
 
         graphData = getGraphData(12*years, principal, interest)
-
-        # do the graph stuff - needs refactoring! :-)
 
         owed = list()
         running_total_int = list()
