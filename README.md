@@ -1,2 +1,2 @@
 # mortcalc
-Basic mortgage calculator functions
+Mortgage Calculator, using PyQT5
